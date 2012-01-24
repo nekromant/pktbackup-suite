@@ -1,0 +1,12 @@
+#!/bin/bash
+NODE=pkt0
+DEVICE=/dev/sr0
+MPOINT=/media/udfcd
+LOCK=/tmp/bck.lock
+BCKD=/etc/backup.d
+DATEFMT=+%s.%m_%d_%Y
+CYCLE_INFO=7
+CYCLE_WARN=500
+CYCLE_FAIL=800
+MYSQL_USER=root
+MYSQL_PASSWORD=top_secret

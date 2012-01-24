@@ -1,0 +1,28 @@
+#!/bin/bash
+#Warmup: Create the folders, notify of media wear status, and such shit
+
+mkdir $TODAYDIR
+log "Created $TODAYDIR"
+MCOUNT=0
+[ -f .backup_count ] && MCOUNT=`cat .backup_count`
+MCOUNT=$((MCOUNT+1))
+
+log "Current media mount count $MCOUNT"
+
+case "$MCOUNT" in
+	$CYCLE_INFO)
+	report "The backup cycle counter has just reached INFO level" 
+	;;
+	$CYCLE_WARNING)
+	report "The backup cycle counter has just reached WARNING level" 
+	;;
+	$CYCLE_FAIL)
+	die "The media wear is now at a very high level. Backuping stopped to avoid data loss"
+	;;
+esac
+
+echo $MCOUNT > .backup_count
+
+log "Backing up backup scripts"
+tar cvpzf $TODAYDIR/backup_scripts.tar.gz $BCKD
+log "Warmup complete"

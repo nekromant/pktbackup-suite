@@ -1,0 +1,8 @@
+#!/bin/bash
+log "Creating mysql database dump"
+mysqldump -u$MYSQL_USER -p$MYSQL_PASS | gzip > $TODAYDIR/`hostname`mysql.gz
+log "Backing up mysql database logs"
+cp -Rfv /var/lib/mysql/*log* $TODAYDIR/
+cp -Rfv /var/lib/mysql/*err $TODAYDIR/
+log "Mysql backup complete"
+

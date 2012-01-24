@@ -1,0 +1,40 @@
+#!/bin/bash
+#TODO: Move to backuprc
+
+[ -f /etc/pbckrc ] && source /etc/pbckrc
+
+POST=0
+source pbckcommon
+
+post
+STAMP=`date $DATEFMT`
+TODAYDIR=backup_$STAMP
+
+log "Starting the backup sequence"
+#We don't autoremove the lock
+[ -f /tmp/bck.lock ] && ( log "Backup already in progress, or prev. backup resulted in error"; exit 1 )
+post 0x01
+log "Preparing media"
+pktcdtool mount || die 1 "Ooops: $? while mounting target media"
+log "Media ready"
+get_free_space
+cd $BCKD
+
+export NODE DEVICE MPOINT LOCK BCKD MFREE MUSED MTOTAL STAMP TODAYDIR
+post
+
+ls | grep -v "~" | sort | while read script; do
+	log "Executing backup script: $script"
+	cd $MPOINT
+	. $BCKD/$script
+	if [ "$?" -ne "0" ]; then
+		die "Oooops while executing $script, backup procedure aborted"
+	fi
+	post
+	update_free_space
+done
+log "Unmounting filesystem and flushing caches"
+pktcdtool umount || die 9 "Error umounting backup media"
+rm -f /tmp/bck.lock
+log "Backup complete"
+exit 0

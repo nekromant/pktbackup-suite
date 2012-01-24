@@ -1,0 +1,49 @@
+#!/bin/bash
+LABEL="$2"
+LBL="--lvid=$LABEL --vid=$LABEL --vsid=$LABEL --fsid=$LABEL"
+[ -f /etc/pbckrc ] && source /etc/pbckrc
+
+case $1 in
+"mount")
+	pktsetup $NODE $DEVICE && \
+	mount /dev/pktcdvd/$NODE $MPOINT -o rw,noatime && \
+	mount /dev/pktcdvd/$NODE $MPOINT -o remount,rw,noatime
+	;;
+	
+"umount")
+	sync && \
+	umount $MPOINT && \
+	pktsetup -d $NODE 
+# 	eject $DEVICE
+	;;
+"fmtcd")
+	cdrwtool -q -d $DEVICE && \
+	pktsetup $NODE $DEVICE && \
+	mkudffs --media-type=cdrw $LBL $DEVICE 
+	;;
+"fmtdvd")
+	dvd+rw-format -force=full $DEVICE && \
+	pktsetup $NODE $DEVICE && \
+	mkudffs --media-type=dvd $LBL /dev/pktcdvd/$NODE && \
+	sync && \
+	pktsetup -d $NODE && \
+	eject $DEVICE
+	;;
+"mkudf")
+	pktsetup $NODE $DEVICE && \
+	mkudffs --media-type=$3 $LBL /dev/pktcdvd/$NODE && \
+	pktsetup -d $NODE
+	;;
+
+"cleanup")
+	for file in `ls /dev/pktcdvd/`; do
+	echo "Disconnecting $file..."
+	pktsetup -d $file
+	done
+	;;
+"setup")
+	pktsetup $NODE $DEVICE
+	;;
+esac
+
+exit 0

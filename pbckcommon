@@ -1,0 +1,50 @@
+#!/bin/bash
+
+
+post()
+{
+	POST=$((POST+1))
+	log "`pwrite 0x$POST`"
+}
+
+log()
+{
+	echo "[`date`] $*"
+	echo "[`date`] $*" > /var/log/pbck.log
+}
+
+die()
+{
+	log "FATAL: $*"
+	rm -f $LOCK
+	pwrite 0xf$1
+	exit $1
+}
+
+report()
+{
+	#TODO: Send mail
+	echo $*
+}
+
+get_free_space()
+{
+	MFREE=`df -m $MPOINT | awk '{ print $4 }' | tail -n 1`
+	MTOTAL=`df -m $MPOINT | awk '{ print $2 }' | tail -n 1`
+	MUSED=`df -m $MPOINT | awk '{ print $3 }' | tail -n 1`
+}
+
+update_free_space()
+{
+	log "`df -h $MPOINT`"
+	MMFREE=$MFREE
+	MMTOTAL=$MTOTAL
+	MMUSED=$MUSED
+	get_free_space
+	log "Free space: $MMFREE -> $MFREE ($((MFREE-MMFREE))) MiB"
+	log "Used space: $MMUSED -> $MUSED ($((MFREE-MMFREE))) MiB"
+	log "Total space: $MMUSED -> $MUSED ($((MFREE-MMFREE))) MiB"
+}
+
+
+export update_free_space get_free_space report die log post 
