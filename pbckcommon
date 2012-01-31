@@ -24,7 +24,7 @@ die()
 report()
 {
 	#TODO: Send mail
-	echo $*
+	log $*
 }
 
 get_free_space()
@@ -43,7 +43,7 @@ update_free_space()
 	get_free_space
 	log "Free space: $MMFREE -> $MFREE ($((MFREE-MMFREE))) MiB"
 	log "Used space: $MMUSED -> $MUSED ($((MFREE-MMFREE))) MiB"
-	log "Total space: $MMUSED -> $MUSED ($((MFREE-MMFREE))) MiB"
+	log "Total space: $MMTOTAL -> $MTOTAL ($((MFREE-MMFREE))) MiB"
 }
 
 
